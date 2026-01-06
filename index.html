@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>زاد المؤمن</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root{
+--green:#1e8e3e;
+--bg:#f3f6f4;
+--card:#ffffff;
+--text:#222;
+}
+body.dark{
+--bg:#121212;
+--card:#1e1e1e;
+--text:#eee;
+}
+*{box-sizing:border-box;font-family:Tajawal,Segoe UI}
+body{
+margin:0;
+background:var(--bg);
+color:var(--text);
+transition:.3s;
+}
+/* Header */
+header{
+background:var(--green);
+color:#fff;
+padding:14px;
+text-align:center;
+font-size:22px;
+}
+/* Tabs */
+.tabs{
+display:flex;
+overflow-x:auto;
+}
+.tab{
+flex:1;
+padding:8px;
+border-radius:20px;
+background:#ccc;
+margin:6px;
+text-align:center;
+cursor:pointer;
+font-size:14px;
+white-space:nowrap;
+}
+.tab.active{
+background:var(--green);
+color:#fff;
+}
+/* Content */
+.card{
+background:var(--card);
+margin:12px;
+padding:18px;
+border-radius:14px;
+min-height:260px;
+font-size:18px;
+text-align:center;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+.counter{
+width:140px;
+height:140px;
+margin:15px auto;
+border-radius:50%;
+background:var(--green);
+color:#fff;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:36px;
+cursor:pointer;
+}
+/* Buttons */
+button{
+padding:10px 14px;
+border:none;
+border-radius:10px;
+background:var(--green);
+color:#fff;
+cursor:pointer;
+margin:4px;
+font-size:16px;
+}
+</style>
+</head>
+<body>
+
+<header>زاد المؤمن</header>
+
+<div class="tabs" id="tabs"></div>
+
+<div class="card" id="zekrText">🔸 اختر مجموعة لبدء الذِكر 🔸</div>
+
+<div class="counter" onclick="increment()"><span id="counterNum">0</span></div>
+
+<div style="text-align:center">
+<button onclick="nextZekr()">التالي</button>
+<button onclick="resetCounter()">تصفير</button>
+<button onclick="toggleDark()">وضع ليلي</button>
+</div>
+
+<script>
+
+// 📌 كل المجموعات مع الأذكار الصحيحة (مصادر إسلامية)
+const azkar = {
+"الصباح":[
+"اللهم بك أصبحنا وبك أمسينا وبك نحيا وبك نموت وإليك المصير",
+"أصبحنا على فطرة الإسلام وكلمة الإخلاص...",
+"سبحان الله وبحمده (100 مرة)",
+"اللهم إني أسألك خير هذا اليوم..."
+],
+"المساء":[
+"أمسينا على عهد الله ووعده...",
+"اللهم بك أمسينا وبك نحيا وبك نموت وإليك المصير",
+"أستغفر الله (100 مرة)",
+"اللهم اجعل مساءنا خير من صباحنا"
+],
+"النوم":[
+"باسمك اللهم أموت وأحيا",
+"اللهم قني عذابك يوم تبعث عبادك",
+"اللهم رب السماوات ورب الأرض..."
+],
+"الاستيقاظ":[
+"الحمد لله الذي أحيانا بعد ما أَماتنا وإليه النشور",
+"اللهم ما أصبح بي من نعمة..."
+],
+"بعد الصلاة":[
+"اللهم اجعلني من التوابين واجعلني من المتطهرين",
+"سبحان الله (33), الحمد لله (33), الله أكبر (34)",
+"اللهم صل وسلم على نبينا محمد ﷺ"
+],
+"دخول المنزل":[
+"اللهم إني أسألك خير المنزل وخير أهل المنزل...",
+"اللهم بارك لنا في منزلنا وارزقنا خيره"
+],
+"الخروج من المنزل":[
+"بسم الله توكلت على الله ولا حول ولا قوة إلا بالله",
+"اللهم إني أعوذ بك أن أضل أو أُضل..."
+],
+"دخول المسجد":[
+"اللهم افتح لي أبواب رحمتك",
+"سبحوا لله بكرة وأصيلاً",
+"لا إله إلا الله وحده لا شريك له..."
+],
+"الخروج من المسجد":[
+"اللهم أعطني من لدنك رحمة وهداية وعفواً",
+"اللهم إنّي أسألك خير هذا المكان..."
+],
+"السفر":[
+"اللهم أنت الصاحب في السفر...",
+"سبحان الذي سخر لنا هذا وما كنا له مقرنين"
+],
+"الوضوء":[
+"أشهد أن لا إله إلا الله وحده لا شريك له",
+"اللهم اجعلني من التوابين والمتطهرين",
+"اللهم طهر قلبي وبدني ونواياي"
+],
+};
+
+let currentGroup = "";
+let currentIndex = 0;
+let counter = 0;
+
+// 📌 إعداد التابات (القوائم)
+function loadTabs() {
+  let html = "";
+  for (const group in azkar) {
+    html += `<div class="tab" onclick="changeTab('${group}',this)">${group}</div>`;
+  }
+  document.getElementById("tabs").innerHTML = html;
+}
+loadTabs();
+
+// 📌 تغيير المجموعة
+function changeTab(group, el) {
+  currentGroup = group;
+  currentIndex = 0;
+  document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+  el.classList.add("active");
+  showZekr();
+}
+
+// 📌 عرض الذكر الحالي
+function showZekr() {
+  if (!currentGroup) return;
+  document.getElementById("zekrText").innerText = azkar[currentGroup][currentIndex];
+}
+
+// 📌 التالي
+function nextZekr() {
+  if (!currentGroup) return;
+  currentIndex = (currentIndex + 1) % azkar[currentGroup].length;
+  showZekr();
+  resetCounter();
+}
+
+// 📌 العداد
+function increment() {
+  counter++;
+  document.getElementById("counterNum").innerText = counter;
+}
+function resetCounter() {
+  counter = 0;
+  document.getElementById("counterNum").innerText = counter;
+}
+
+// 📌 الوضع الليلي
+function toggleDark() {
+  document.body.classList.toggle("dark");
+}
+</script>
+
+</body>
+</html>
