@@ -11,7 +11,11 @@
     padding: 0;
     background-color: #f3f6f4;
     color: #222;
-    overflow-x: hidden;
+    transition: background 0.3s, color 0.3s;
+  }
+  body.dark-mode {
+    background-color: #121212;
+    color: #eee;
   }
   header {
     position: fixed;
@@ -23,80 +27,113 @@
     justify-content: space-between;
     align-items: center;
     padding: 12px 15px;
-    z-index: 1000;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 1000;
   }
   header h1 {
     margin: 0;
     font-size: 1.3em;
   }
   .menu {
-    position: relative;
     cursor: pointer;
     font-size: 1.5em;
+    position: relative;
   }
-  .dropdown {
+  .menu ul {
     display: none;
     position: absolute;
     top: 35px;
     right: 0;
     background: white;
-    color: #222;
-    min-width: 150px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    z-index: 1001;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  }
-  .dropdown button {
-    width: 100%;
+    list-style: none;
     padding: 10px;
-    border: none;
-    background: none;
-    text-align: right;
-    cursor: pointer;
-    font-size: 1em;
+    border-radius: 6px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.3);
+    z-index: 1001;
   }
-  .dropdown button:hover {
-    background-color: #f0f0f0;
+  .menu ul li {
+    padding: 8px 12px;
+    cursor: pointer;
+  }
+  .menu ul li:hover {
+    background: #eee;
   }
   main {
-    padding: 70px 20px 20px 20px;
+    margin-top: 60px;
+    padding: 15px;
   }
-  select {
-    width: 100%;
-    padding: 10px;
-    font-size: 1em;
-    border-radius: 5px;
-    border: 1px solid #ccc;
+  .carousel {
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 10px;
     margin-bottom: 20px;
+    scrollbar-width: none;
+  }
+  .carousel::-webkit-scrollbar {
+    display: none;
+  }
+  .circle {
+    flex: 0 0 auto;
+    width: 80px;
+    height: 80px;
+    margin: 0 8px;
+    background-color: #1e8e3e;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+  }
+  .circle.active {
+    transform: scale(1.2);
+    background-color: #146b2b;
   }
   .azkar-box {
     background: white;
+    border-radius: 10px;
     padding: 15px;
-    border-radius: 8px;
-    min-height: 150px;
-    box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+    min-height: 120px;
     font-size: 1.1em;
-    line-height: 1.5em;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+    margin-bottom: 15px;
   }
-  .navigation {
+  .controls {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 15px;
+    font-size: 1em;
   }
-  .navigation button {
-    padding: 10px 15px;
+  .controls button {
+    padding: 8px 12px;
     border: none;
-    border-radius: 5px;
-    background-color: #1e8e3e;
+    border-radius: 6px;
+    background: #1e8e3e;
     color: white;
     cursor: pointer;
     font-size: 1em;
   }
-  .navigation .counter {
-    font-size: 1em;
+  .controls span {
+    flex: 1;
+    text-align: center;
+  }
+  .counter {
+    margin-top: 5px;
+    text-align: center;
+    font-size: 0.9em;
+    color: #555;
+  }
+  body.dark-mode .azkar-box {
+    background: #1f1f1f;
+    color: #eee;
+  }
+  body.dark-mode .circle {
+    background-color: #146b2b;
+  }
+  body.dark-mode .controls button {
+    background-color: #146b2b;
   }
 </style>
 </head>
@@ -104,133 +141,129 @@
 
 <header>
   <h1>زاد المؤمن</h1>
-  <div class="menu" id="menu-btn">&#x22EE;
-    <div class="dropdown" id="menu-dropdown">
-      <button id="toggle-dark">الوضع الليلي</button>
-      <button id="share-page">مشاركة الصفحة</button>
-      <button id="settings">الإعدادات</button>
-    </div>
+  <div class="menu" id="menu-btn">⋮
+    <ul id="menu-list">
+      <li id="toggle-dark">الوضع الليلي</li>
+      <li id="share-page">مشاركة</li>
+      <li id="refresh-page">تحديث</li>
+    </ul>
   </div>
 </header>
 
 <main>
-  <select id="category-select">
-    <option value="sabah">أذكار الصباح</option>
-    <option value="masaa">أذكار المساء</option>
-    <option value="sleep">أذكار النوم</option>
-    <option value="afterPrayer">أذكار بعد الصلاة</option>
-    <option value="wodoo">أذكار قبل وبعد الوضوء</option>
-    <option value="goToMasjed">دعاء الذهاب إلى المسجد</option>
-    <option value="enterMasjed">دعاء دخول المسجد</option>
-    <option value="exitMasjed">دعاء الخروج من المسجد</option>
-  </select>
+  <div class="carousel" id="carousel"></div>
 
-  <div class="azkar-box" id="azkar-text">
-    <!-- هنا سيظهر النص -->
+  <div class="azkar-box" id="azkar-box">اختر ذكر من الأعلى</div>
+
+  <div class="controls">
+    <button id="prev">السابق</button>
+    <span id="current-info">0 / 0</span>
+    <button id="next">التالي</button>
   </div>
 
-  <div class="navigation">
-    <button id="prev-btn">السابق</button>
-    <div class="counter" id="counter">1 / 1</div>
-    <button id="next-btn">التالي</button>
-  </div>
+  <div class="counter" id="repeat-counter"></div>
 </main>
 
 <script>
-/* =========================
-   ضع محتوى JSON الخاص بكل فئة هنا
-========================= */
-const azkarData = {
-  "sabah": {},       // ضع محتوى أذكار الصباح هنا
-  "masaa": {},       // ضع محتوى أذكار المساء هنا
-  "sleep": {},       // ضع محتوى أذكار النوم هنا
-  "afterPrayer": {}, // ضع محتوى أذكار بعد الصلاة هنا
-  "wodoo": {},       // ضع محتوى أذكار قبل وبعد الوضوء هنا
-  "goToMasjed": {},  // ضع محتوى دعاء الذهاب إلى المسجد هنا
-  "enterMasjed": {}, // ضع محتوى دعاء دخول المسجد هنا
-  "exitMasjed": {}   // ضع محتوى دعاء الخروج من المسجد هنا
-};
+/* ===============================
+   ضع محتوى JSON الخاص بالأذكار هنا
+=============================== */
+const azkarData = [
+  // مثال:
+  // { "text": "أذكار الصباح ...", "repeat": 1 }
+];
 
-let currentCategory = 'sabah';
 let currentIndex = 0;
 
-const azkarText = document.getElementById('azkar-text');
-const counter = document.getElementById('counter');
-const categorySelect = document.getElementById('category-select');
-
-// عرض الأذكار حسب الفئة
-function updateAzkar() {
-  const data = azkarData[currentCategory];
-  if (!data || !data.azkar || data.azkar.length === 0) {
-    azkarText.innerText = "لا توجد أذكار لهذه الفئة";
-    counter.innerText = "0 / 0";
-    return;
-  }
-  if(currentIndex >= data.azkar.length) currentIndex = data.azkar.length - 1;
-  if(currentIndex < 0) currentIndex = 0;
-
-  azkarText.innerText = data.azkar[currentIndex].text;
-  counter.innerText = `${currentIndex + 1} / ${data.azkar.length}`;
+/* ===============================
+   الدالة لعرض كل الدوائر في الشريط
+=============================== */
+function renderCarousel() {
+  const carousel = document.getElementById('carousel');
+  carousel.innerHTML = '';
+  azkarData.forEach((a, index) => {
+    const circle = document.createElement('div');
+    circle.className = 'circle';
+    circle.innerText = index + 1;
+    circle.addEventListener('click', () => {
+      currentIndex = index;
+      updateAzkar();
+    });
+    carousel.appendChild(circle);
+  });
 }
 
-// تغيير الفئة عند اختيار المستخدم
-categorySelect.addEventListener('change', (e) => {
-  currentCategory = e.target.value;
-  currentIndex = 0;
+/* ===============================
+   عرض الذكر الحالي
+=============================== */
+function updateAzkar() {
+  if(azkarData.length === 0) return;
+  const box = document.getElementById('azkar-box');
+  const info = document.getElementById('current-info');
+  const counter = document.getElementById('repeat-counter');
+
+  box.innerText = azkarData[currentIndex].text;
+  info.innerText = `${currentIndex + 1} / ${azkarData.length}`;
+  
+  if(azkarData[currentIndex].repeat && azkarData[currentIndex].repeat > 1) {
+    counter.innerText = `عدد التكرار: ${azkarData[currentIndex].repeat}`;
+  } else {
+    counter.innerText = '';
+  }
+
+  // تفعيل الدائرة النشطة
+  document.querySelectorAll('.circle').forEach((c, i) => {
+    c.classList.toggle('active', i === currentIndex);
+  });
+}
+
+/* ===============================
+   أزرار التحكم
+=============================== */
+document.getElementById('prev').addEventListener('click', () => {
+  if(currentIndex > 0) currentIndex--;
   updateAzkar();
 });
 
-// أزرار السابق / التالي
-document.getElementById('prev-btn').addEventListener('click', () => {
-  currentIndex--;
-  updateAzkar();
-});
-document.getElementById('next-btn').addEventListener('click', () => {
-  currentIndex++;
+document.getElementById('next').addEventListener('click', () => {
+  if(currentIndex < azkarData.length -1) currentIndex++;
   updateAzkar();
 });
 
-// عرض الفئة الافتراضية عند فتح الصفحة
+/* ===============================
+   قائمة الثلاث نقاط
+=============================== */
+const menuBtn = document.getElementById('menu-btn');
+const menuList = document.getElementById('menu-list');
+menuBtn.addEventListener('click', () => {
+  menuList.style.display = menuList.style.display === 'block' ? 'none' : 'block';
+});
+
+document.getElementById('toggle-dark').addEventListener('click', () => {
+  document.body.classList.toggle('dark-mode');
+  menuList.style.display = 'none';
+});
+
+document.getElementById('share-page').addEventListener('click', () => {
+  if(navigator.share){
+    navigator.share({title:'زاد المؤمن', url: window.location.href});
+  } else {
+    alert('شارك الرابط يدوياً: ' + window.location.href);
+  }
+  menuList.style.display = 'none';
+});
+
+document.getElementById('refresh-page').addEventListener('click', () => {
+  location.reload();
+  menuList.style.display = 'none';
+});
+
+/* ===============================
+   البدء
+=============================== */
+renderCarousel();
 updateAzkar();
 
-/* =========================
-   قائمة الثلاث نقاط
-========================= */
-const menuBtn = document.getElementById('menu-btn');
-const dropdown = document.getElementById('menu-dropdown');
-menuBtn.addEventListener('click', () => {
-  dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-});
-
-// إخفاء القائمة عند الضغط خارجها
-document.addEventListener('click', function(event) {
-  if (!menuBtn.contains(event.target)) {
-    dropdown.style.display = 'none';
-  }
-});
-
-// مثال تفعيل الوضع الليلي
-const toggleDark = document.getElementById('toggle-dark');
-toggleDark.addEventListener('click', () => {
-  document.body.style.backgroundColor = document.body.style.backgroundColor === '#222' ? '#f3f6f4' : '#222';
-  document.body.style.color = document.body.style.color === '#fff' ? '#222' : '#fff';
-  azkarText.style.backgroundColor = azkarText.style.backgroundColor === '#222' ? 'white' : '#222';
-  azkarText.style.color = azkarText.style.color === '#fff' ? '#222' : '#fff';
-});
-
-// مثال مشاركة الصفحة
-document.getElementById('share-page').addEventListener('click', () => {
-  if (navigator.share) {
-    navigator.share({ title: 'زاد المؤمن', url: window.location.href });
-  } else {
-    alert('نسخ الرابط: ' + window.location.href);
-  }
-});
-
-// إعدادات - يمكنك تعديل الوظائف لاحقاً
-document.getElementById('settings').addEventListener('click', () => {
-  alert('قائمة الإعدادات مفتوحة');
-});
 </script>
 
 </body>
