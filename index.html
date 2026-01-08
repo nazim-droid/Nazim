@@ -3,223 +3,235 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>تطبيق الأذكار</title>
+<title>زاد المؤمن</title>
 <style>
   body {
     font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
     background-color: #f3f6f4;
     color: #222;
-    padding: 20px;
+    overflow-x: hidden;
   }
-  h1 {
-    text-align: center;
-    color: #1e8e3e;
-    margin-bottom: 20px;
+  header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background-color: #1e8e3e;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
   }
-  label {
-    font-size: 1.1em;
+  header h1 {
+    margin: 0;
+    font-size: 1.3em;
+  }
+  .menu {
+    position: relative;
+    cursor: pointer;
+    font-size: 1.5em;
+  }
+  .dropdown {
+    display: none;
+    position: absolute;
+    top: 35px;
+    right: 0;
+    background: white;
+    color: #222;
+    min-width: 150px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    z-index: 1001;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
+  .dropdown button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    background: none;
+    text-align: right;
+    cursor: pointer;
+    font-size: 1em;
+  }
+  .dropdown button:hover {
+    background-color: #f0f0f0;
+  }
+  main {
+    padding: 70px 20px 20px 20px;
   }
   select {
     width: 100%;
-    padding: 8px;
+    padding: 10px;
     font-size: 1em;
-    margin: 10px 0 20px 0;
     border-radius: 5px;
     border: 1px solid #ccc;
+    margin-bottom: 20px;
   }
-  .category {
-    font-size: 1.3em;
-    font-weight: bold;
-    color: #1e8e3e;
-    margin-bottom: 10px;
-  }
-  #azkar-list p {
-    background: #fff;
-    margin: 8px 0;
-    padding: 12px;
+  .azkar-box {
+    background: white;
+    padding: 15px;
     border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    min-height: 150px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+    font-size: 1.1em;
+    line-height: 1.5em;
+  }
+  .navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+  }
+  .navigation button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #1e8e3e;
+    color: white;
+    cursor: pointer;
+    font-size: 1em;
+  }
+  .navigation .counter {
+    font-size: 1em;
   }
 </style>
 </head>
 <body>
 
-<h1>تطبيق الأذكار</h1>
+<header>
+  <h1>زاد المؤمن</h1>
+  <div class="menu" id="menu-btn">&#x22EE;
+    <div class="dropdown" id="menu-dropdown">
+      <button id="toggle-dark">الوضع الليلي</button>
+      <button id="share-page">مشاركة الصفحة</button>
+      <button id="settings">الإعدادات</button>
+    </div>
+  </div>
+</header>
 
-<label for="category-select">اختر نوع الأذكار:</label>
-<select id="category-select">
-  <option value="sabah">أذكار الصباح</option>
-  <option value="masaa">أذكار المساء</option>
-  <option value="sleep">أذكار النوم</option>
-  <option value="afterPrayer">أذكار بعد الصلاة</option>
-  <option value="wodoo">أذكار قبل وبعد الوضوء</option>
-  <option value="goToMasjed">دعاء الذهاب إلى المسجد</option>
-  <option value="enterMasjed">دعاء دخول المسجد</option>
-  <option value="exitMasjed">دعاء الخروج من المسجد</option>
-</select>
+<main>
+  <select id="category-select">
+    <option value="sabah">أذكار الصباح</option>
+    <option value="masaa">أذكار المساء</option>
+    <option value="sleep">أذكار النوم</option>
+    <option value="afterPrayer">أذكار بعد الصلاة</option>
+    <option value="wodoo">أذكار قبل وبعد الوضوء</option>
+    <option value="goToMasjed">دعاء الذهاب إلى المسجد</option>
+    <option value="enterMasjed">دعاء دخول المسجد</option>
+    <option value="exitMasjed">دعاء الخروج من المسجد</option>
+  </select>
 
-<div class="category" id="category"></div>
-<div id="azkar-list"></div>
+  <div class="azkar-box" id="azkar-text">
+    <!-- هنا سيظهر النص -->
+  </div>
+
+  <div class="navigation">
+    <button id="prev-btn">السابق</button>
+    <div class="counter" id="counter">1 / 1</div>
+    <button id="next-btn">التالي</button>
+  </div>
+</main>
 
 <script>
-
-/* ==================================================
-   🔹 ضع محتوى JSON الخاص بكل فئة هنا
-   مثال:
-   "sabah": {
-     "settings": { "dark_mode": true, "share": true },
-     "category": "أذكار الصباح",
-     "azkar": [
-       { "id": 1, "text": "أَصْبَحْنا..." },
-       { "id": 2, "text": "اللَّهُمَّ بِكَ أَصْبَحْنا..." }
-     ]
-   }
-================================================== */
-
+/* =========================
+   ضع محتوى JSON الخاص بكل فئة هنا
+========================= */
 const azkarData = {
   "sabah": {},       // ضع محتوى أذكار الصباح هنا
   "masaa": {},       // ضع محتوى أذكار المساء هنا
   "sleep": {},       // ضع محتوى أذكار النوم هنا
-  "afterPrayer": {
-  "settings": {
-    "dark_mode": true,
-    "share": true
-  },
-  "category": "أذكار بعد الصلاة",
-  "azkar": [
-    {
-      "id": 1,
-      "text": "أَسْتَغْفِرُ ﷲ، أَسْتَغْفِرُ ﷲ، أَسْتَغْفِرُ ﷲ. اللَّهُمَّ أَنْتَ السَّلامُ ، وَمِنْكَ السَّلام ، تَبارَكْتَ يا ذا الجلالِ والإكرامِ."
-    },
-    {
-      "id": 2,
-      "text": "لا إلهَ إلَّا اللهُ وحده لا شريكَ له له الملكُ وله الحمدُ وهو على كلِّ شيءٍ قديرٌ اللَّهمَّ لا مانعَ لما أعطيتَ ولا مُعطيَ لما منعتَ ولا ينفعُ ذا الجَدِّ منك الجَدُّ."
-    },
-    {
-      "id": 3,
-      "text": "لا إلهَ إلاّ اللّه، وحدَهُ لا شريكَ لهُ، لهُ الملكُ ولهُ الحَمد، وهوَ على كلّ شيءٍ قدير، لا حَـوْلَ وَلا قـوَّةَ إِلاّ بِاللهِ، لا إلهَ إلاّ اللّـه، وَلا نَعْـبُـدُ إِلاّ إيّـاه، لَهُ النِّعْـمَةُ وَلَهُ الفَضْل وَلَهُ الثَّـناءُ الحَـسَن، لا إلهَ إلاّ اللّهُ مخْلِصـينَ لَـهُ الدِّينَ وَلَوْ كَـرِهَ الكـافِرون."
-    },
-    {
-      "id": 4,
-      "text": "سُـبْحانَ اللهِ،(33) والحَمْـدُ لله ،(33) واللهُ أكْـبَر.(33)."
-    },
-    {
-      "id": 5,
-      "text": "لا إلهَ إلاّ اللّهُ وَحْـدَهُ لا شريكَ لهُ، لهُ الملكُ ولهُ الحَمْد، وهُوَ على كُلّ شَيءٍ قَـدير."
-    },
-    {
-      "id": 6,
-      "text": "بِسْمِ اللهِ الرَّحْمنِ الرَّحِيم قُلْ هُوَ ٱللَّهُ أَحَدٌ، ٱللَّهُ ٱلصَّمَدُ، لَمْ يَلِدْ وَلَمْ يُولَدْ، وَلَمْ يَكُن لَّهُۥ كُفُوًا أَحَدٌۢ. بِسْمِ اللهِ الرَّحْمنِ الرَّحِيم قُلْ أَعُوذُ بِرَبِّ ٱلْفَلَقِ، مِن شَرِّ مَا خَلَقَ، وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ، وَمِن شَرِّ ٱلنَّفَّٰثَٰتِ فِى ٱلْعُقَدِ، وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ. بِسْمِ اللهِ الرَّحْمنِ الرَّحِيم قُلْ أَعُوذُ بِرَبِّ ٱلنَّاسِ، مَلِكِ ٱلنَّاسِ، إِلَٰهِ ٱلنَّاسِ، مِن شَرِّ ٱلْوَسْوَاسِ ٱلْخَنَّاسِ، ٱلَّذِى يُوَسْوِسُ فِى صُدُورِ ٱلنَّاسِ، مِنَ ٱلْجِنَّةِ وَٱلنَّاسِ."
-    },
-    {
-      "id": 7,
-      "text": "أَعُوذُ بِاللهِ مِنْ الشَّيْطَانِ الرَّجِيمِ اللّهُ لاَ إِلَـهَ إِلاَّ هُوَ الْحَيُّ الْقَيُّومُ لاَ تَأْخُذُهُ سِنَةٌ وَلاَ نَوْمٌ لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الأَرْضِ مَن ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلاَّ بِإِذْنِهِ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ وَلاَ يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلاَّ بِمَا شَاء وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالأَرْضَ وَلاَ يَؤُودُهُ حِفْظُهُمَا وَهُوَ الْعَلِيُّ الْعَظِيمُ. (آية الكرسى - البقرة 255)"
-    },
-    {
-      "id": 8,
-      "text": "لا إلهَ إلاّ اللّهُ وحْـدَهُ لا شريكَ لهُ، لهُ المُلكُ ولهُ الحَمْد، يُحيـي وَيُمـيتُ وهُوَ على كُلّ شيءٍ قدير. (عَشْر مَرّات بَعْدَ المَغْرِب وَالصّـبْح)"
-    },
-    {
-      "id": 9,
-      "text": "اللّهُـمَّ إِنِّـي أَسْأَلُـكَ عِلْمـاً نافِعـاً وَرِزْقـاً طَيِّـباً، وَعَمَـلاً مُتَقَـبَّلاً. (بَعْد السّلامِ من صَلاةِ الفَجْر)"
-    },
-    {
-      "id": 10,
-      "text": "اللَّهُمَّ أَجِرْنِي مِنْ النَّار. (7 مرات - بعد صلاة الصبح والمغرب)"
-    },
-    {
-      "id": 11,
-      "text": "اللَّهُمَّ أَعِنِّي عَلَى ذِكْرِكَ وَشُكْرِكَ وَحُسْنِ عِبَادَتِكَ."
-    }
-  ]
-      }, // ضع محتوى أذكار بعد الصلاة هنا
-  "wodoo": {
-  "settings": {
-    "dark_mode": true,
-    "share": true
-  },
-  "category": "أذكار قبل وبعد الوضوء",
-  "azkar": [
-    {
-      "id": 1,
-      "text": "الذكر قبل الوضوء- بِسْمِ ٱللّٰهِ."
-    },
-    {
-      "id": 2,
-      "text": "الذكر بعد الوضوء- أشْهَدُ أن لا إله إلا الله وحْدَهُ لا شريكَ لهُ، وأشْهَدُ أنَّ محمداً عَبدُهُ ورسُولُه. اللَّهُمَّ اجْعَلْني مِنَ التَّوَّابينَ واجْعَلْني من المُتَطَهِّرِينَ. سُبْحَانَكَ اللَّهُمَّ وبَحَمْدكَ أشْهدُ أنْ لا إلهَ إلا أنْتَ أَسْتَغْفِرُكَ وأتُوبُ إِلَيْكَ."
-    }
-  ]
-    },       // ضع محتوى أذكار قبل وبعد الوضوء هنا
-  "goToMasjed": {
-  "settings": {
-    "dark_mode": true,
-    "share": true
-  },
-  "category": "دعاء الذهاب إلى المسجد",
-  "azkar": [
-    {
-      "id": 1,
-      "text": "اللّهُـمَّ اجْعَـلْ في قَلْبـي نورا ، وَفي لِسـاني نورا، وَاجْعَـلْ في سَمْعي نورا، وَاجْعَـلْ في بَصَري نورا، وَاجْعَـلْ مِنْ خَلْفي نورا، وَمِنْ أَمامـي نورا، وَاجْعَـلْ مِنْ فَوْقـي نورا ، وَمِن تَحْتـي نورا .اللّهُـمَّ أَعْطِنـي نورا."
-    }
-  ]
-      },  // ضع محتوى دعاء الذهاب إلى المسجد هنا
-  "enterMasjed": {
-  "settings": {
-    "dark_mode": true,
-    "share": true
-  },
-  "category": "دعاء دخول المسجد",
-  "azkar": [
-    {
-      "id": 1,
-      "text": "يَبْدَأُ بِرِجْلِهِ اليُمْنَى، وَيَقُولُ: أَعوذُ باللهِ العَظيـم وَبِوَجْهِـهِ الكَرِيـم وَسُلْطـانِه القَديـم مِنَ الشّيْـطانِ الرَّجـيم، بِسْمِ اللَّهِ، وَالصَّلاةُ وَالسَّلامُ عَلَى رَسُولِ الله، اللّهُـمَّ افْتَـحْ لي أَبْوابَ رَحْمَتـِك."
-    }
-  ]
-      }, // ضع محتوى دعاء دخول المسجد هنا
-  "exitMasjed": {
-  "settings": {
-    "dark_mode": true,
-    "share": true
-  },
-  "category": "دعاء الخروج من المسجد",
-  "azkar": [
-    {
-      "id": 1,
-      "text": "يَبْدَأُ بِرِجْلِهِ الْيُسْرَى، وَيَقُولُ: بِسْـمِ اللَّـهِ وَالصَّلاةُ وَالسَّلامُ عَلَى رَسُولِ اللَّهِ، اللَّهُمَّ إنِّي أَسْأَلُكَ مِنْ فَضْلِكَ، اللَّهُمَّ اعْصِمْنِي مِنَ الشَّيْطَانِ الرَّجِيم."
-    }
-  ]
-  }   // ضع محتوى دعاء الخروج من المسجد هنا
+  "afterPrayer": {}, // ضع محتوى أذكار بعد الصلاة هنا
+  "wodoo": {},       // ضع محتوى أذكار قبل وبعد الوضوء هنا
+  "goToMasjed": {},  // ضع محتوى دعاء الذهاب إلى المسجد هنا
+  "enterMasjed": {}, // ضع محتوى دعاء دخول المسجد هنا
+  "exitMasjed": {}   // ضع محتوى دعاء الخروج من المسجد هنا
 };
 
-// عرض الأذكار حسب الفئة المختارة
-function displayAzkar(categoryKey) {
-  const data = azkarData[categoryKey];
+let currentCategory = 'sabah';
+let currentIndex = 0;
 
+const azkarText = document.getElementById('azkar-text');
+const counter = document.getElementById('counter');
+const categorySelect = document.getElementById('category-select');
+
+// عرض الأذكار حسب الفئة
+function updateAzkar() {
+  const data = azkarData[currentCategory];
   if (!data || !data.azkar || data.azkar.length === 0) {
-    document.getElementById('category').innerText = "لا توجد أذكار لهذه الفئة";
-    document.getElementById('azkar-list').innerHTML = "";
+    azkarText.innerText = "لا توجد أذكار لهذه الفئة";
+    counter.innerText = "0 / 0";
     return;
   }
+  if(currentIndex >= data.azkar.length) currentIndex = data.azkar.length - 1;
+  if(currentIndex < 0) currentIndex = 0;
 
-  document.getElementById('category').innerText = data.category;
-  const container = document.getElementById('azkar-list');
-  container.innerHTML = "";
-
-  data.azkar.forEach(a => {
-    const p = document.createElement('p');
-    p.innerText = a.text;
-    container.appendChild(p);
-  });
+  azkarText.innerText = data.azkar[currentIndex].text;
+  counter.innerText = `${currentIndex + 1} / ${data.azkar.length}`;
 }
 
 // تغيير الفئة عند اختيار المستخدم
-document.getElementById('category-select').addEventListener('change', (e) => {
-  displayAzkar(e.target.value);
+categorySelect.addEventListener('change', (e) => {
+  currentCategory = e.target.value;
+  currentIndex = 0;
+  updateAzkar();
 });
 
-// عرض أذكار الصباح بشكل افتراضي عند فتح التطبيق
-displayAzkar('sabah');
+// أزرار السابق / التالي
+document.getElementById('prev-btn').addEventListener('click', () => {
+  currentIndex--;
+  updateAzkar();
+});
+document.getElementById('next-btn').addEventListener('click', () => {
+  currentIndex++;
+  updateAzkar();
+});
 
+// عرض الفئة الافتراضية عند فتح الصفحة
+updateAzkar();
+
+/* =========================
+   قائمة الثلاث نقاط
+========================= */
+const menuBtn = document.getElementById('menu-btn');
+const dropdown = document.getElementById('menu-dropdown');
+menuBtn.addEventListener('click', () => {
+  dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+});
+
+// إخفاء القائمة عند الضغط خارجها
+document.addEventListener('click', function(event) {
+  if (!menuBtn.contains(event.target)) {
+    dropdown.style.display = 'none';
+  }
+});
+
+// مثال تفعيل الوضع الليلي
+const toggleDark = document.getElementById('toggle-dark');
+toggleDark.addEventListener('click', () => {
+  document.body.style.backgroundColor = document.body.style.backgroundColor === '#222' ? '#f3f6f4' : '#222';
+  document.body.style.color = document.body.style.color === '#fff' ? '#222' : '#fff';
+  azkarText.style.backgroundColor = azkarText.style.backgroundColor === '#222' ? 'white' : '#222';
+  azkarText.style.color = azkarText.style.color === '#fff' ? '#222' : '#fff';
+});
+
+// مثال مشاركة الصفحة
+document.getElementById('share-page').addEventListener('click', () => {
+  if (navigator.share) {
+    navigator.share({ title: 'زاد المؤمن', url: window.location.href });
+  } else {
+    alert('نسخ الرابط: ' + window.location.href);
+  }
+});
+
+// إعدادات - يمكنك تعديل الوظائف لاحقاً
+document.getElementById('settings').addEventListener('click', () => {
+  alert('قائمة الإعدادات مفتوحة');
+});
 </script>
+
 </body>
 </html>
